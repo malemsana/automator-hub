@@ -1,0 +1,54 @@
+{
+  "name": "automator-hub-0.1.2",
+  "productName": "Automator Hub 0.1.2",
+  "version": "0.1.2",
+  "description": "This is a development version of Automator Hub.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Malemsana Ningombam-vyp.co",
+  "license": "ISC",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "logo.ico"
+      },
+      "rebuildConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "automator_hub_dev",
+            "setupIcon": "logo.ico"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "win32",
+            "darwin"
+          ]
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "codemirror": "^5.65.16",
+    "node-fetch": "^2.7.0",
+    "puppeteer": "^24.16.2"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.3",
+    "@electron-forge/maker-squirrel": "^7.8.3",
+    "@electron-forge/maker-zip": "^7.8.3",
+    "electron": "37.2.1",
+    "electron-rebuild": "^3.2.9"
+  }
+}
