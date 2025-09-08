@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automator Hub - Scripting API Reference</title>
+    <style>
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-color: #1a1b26;
+            --surface-color: #24283b;
+            --primary-color: #7aa2f7;
+            --text-color: #c0caf5;
+            --text-secondary-color: #a9b1d6;
+            --border-color: #3b4261;
+            --status-green: #9ece6a;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header { text-align: center; padding: 50px 20px; }
+        header h1 { font-size: 2.8rem; color: white; margin-bottom: 5px; }
+        header p { font-size: 1.2rem; color: var(--text-secondary-color); }
+        
+        main { border-top: 1px solid var(--border-color); padding-top: 30px; }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-top: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        h3 { font-size: 1.5rem; color: white; }
+        h4 { font-size: 1.2rem; color: var(--text-secondary-color); }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+
+        code {
+            background-color: #161821;
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 90%;
+            border-radius: 6px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        }
+
+        pre {
+            background-color: #161821;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+
+        .note {
+            background-color: var(--surface-color);
+            border-left: 4px solid var(--text-secondary-color);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        footer { text-align: center; padding: 40px 20px; margin-top: 60px; border-top: 1px solid var(--border-color); color: var(--text-secondary-color); }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Scripting API Reference</h1>
+            <p>For Automator Hub v0.2.0 and later</p>
+        </header>
+
+        <main>
+            <section id="core-concepts">
+                <h2>Core Concepts</h2>
+                <p>Every script runs in a powerful Node.js environment and is provided with global objects to control the browser, manage data, and interact with the outside world. This guide will walk you through each API with examples.</p>
+                <ul>
+                    <li><code>page</code> & <code>browser</code>: The standard <a href="https://pptr.dev/" target="_blank">Puppeteer</a> Page and Browser objects. All browser control is done through these.</li>
+                    <li><code>automator</code>: A custom object providing powerful, secure helper functions for interacting with the application's backend and the file system.</li>
+                    <li><code>db</code>: A dedicated object for executing SQL queries on your script's own private database.</li>
+                </ul>
+            </section>
+            
+            <section id="mini-project">
+                <h2>Example Mini-Project: Google Search & Screenshot</h2>
+                <p>This is a simple but complete script that demonstrates how to use the core APIs to perform a task, save a file, and report the result. Simply create a new script named "Google Screenshot" and paste this code in.</p>
+                <pre><code>// SCRIPT: Google Search &amp; Screenshot
+
+// 1. Get our environment info using the automator API
+const profileName = automator.getProfileName();
+const workspacePath = automator.workspace.getPath();
+console.log(`Starting on profile: ${profileName}`);
+console.log(`Files will be saved to: ${workspacePath}`);
+
+// 2. Define our task variables
+const searchTerm = "Hyouka anime";
+const screenshotFilename = `${profileName}-screenshot.png`;
+const logFilename = `run_log.txt`;
+
+try {
+    // 3. Perform the browser automation using Puppeteer
+    console.log(`Navigating to Google and searching for "${searchTerm}"...`);
+    await page.goto(`https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`);
+
+    // Wait for the main search results container to appear
+    await page.waitForSelector('#search');
+    
+    // 4. Use the Workspace API to save a file
+    console.log(`Taking screenshot and saving as "${screenshotFilename}"...`);
+    await page.screenshot({ path: `${workspacePath}/${screenshotFilename}`, fullPage: true });
+
+    const logMessage = `Successfully took a screenshot for "${searchTerm}" at ${new Date().toLocaleString()}`;
+    await automator.workspace.writeFile(logFilename, logMessage);
+
+    console.log('Task was successful!');
+
+} catch (error) {
+    console.error('An error occurred during the task:', error);
+} finally {
+    // 5. Always close the browser to end the job for this profile
+    console.log('Closing browser.');
+    await browser.close();
+}</code></pre>
+                <h4>How to Run It</h4>
+                <ol>
+                    <li>Create a new Script in Automator Hub and paste in the code above.</li>
+                    <li>Go to the **Profiles** screen, create a profile if you don't have one, and make sure it's enabled.</li>
+                    <li>Go to **Mission Control** and run your new "Google Screenshot" script.</li>
+                    <li>After the job completes, check the console logs. Then, you can open your script's private Workspace folder to find the `screenshot.png` and `run_log.txt` files!</li>
+                </ol>
+            </section>
+            
+            <section id="api-reference">
+                <h2>Full API Reference</h2>
+
+                <h3>The `automator` Object</h3>
+                
+                <h4>`automator.getProfileName()`</h4>
+                <div class="note"><strong>Returns:</strong> <code>String</code></div>
+                <p>Gets the name of the profile the script is currently running on.</p>
+
+                <h4>`automator.getAllProfiles()`</h4>
+                <div class="note"><strong>Returns:</strong> <code>Array&lt;Object&gt;</code></div>
+                <p>Gets a list of all profiles in the system. Each object has: <code>id</code> (Number), <code>name</code> (String), <code>avatarPath</code> (String|null).</p>
+                
+                <h4>`automator.workspace` (File I/O)</h4>
+                <p>Provides access to a secure, private folder for your script.</p>
+                <ul>
+                    <li><code>.getPath()</code>: Returns the absolute path to the workspace folder.</li>
+                    <li><code>.writeFile(filename, content)</code>: Saves data to a file in the workspace.</li>
+                    <li><code>.readFile(filename)</code>: Reads data from a file in the workspace (returns <code>null</code> if not found).</li>
+                </ul>
+
+                <h4>`automator.api` (Networking)</h4>
+                 <div class="note"><strong>Returns:</strong> <code>Object</code> with <code>{ ok, status, headers, body }</code></div>
+                <p>Allows scripts to make secure backend HTTP requests. The <code>body</code> is always a string and must be parsed (e.g., with `JSON.parse`) if needed.</p>
+
+                <h4>`automator.dashboard`</h4>
+                <p>Allows a script to create its own custom HTML UI in the "Apps" screen.</p>
+                <ul>
+                    <li><code>.setHTML(htmlString)</code>: Sets the dashboard from a raw string of HTML.</li>
+                    <li><code>.setHTMLFromFile(filename)</code>: Reads an HTML file from the workspace and sets it as the dashboard.</li>
+                </ul>
+                
+                <h3>The `db` Object (Database)</h3>
+                <p>Gives your script access to its own private SQLite database.</p>
+                
+                <h4>`db.execute(sql, [params])`</h4>
+                <div class="note"><strong>Returns:</strong> <code>Array&lt;Object&gt;</code> for `SELECT`, <code>Object</code> for others. Throws an error on failure.</div>
+                <p>Executes any valid SQL command. Use `?` placeholders for parameters to prevent SQL injection.</p>
+                <pre><code>// Create a table if it doesn't exist
+await db.execute('CREATE TABLE IF NOT EXISTS results (item TEXT)');
+
+// Insert data safely
+await db.execute('INSERT INTO results (item) VALUES (?)', ['Scraped data point']);
+
+// Get all data back
+const results = await db.execute('SELECT * FROM results');
+console.log(results); // [ { item: 'Scraped data point' } ]</code></pre>
+            </section>
+        </main>
+
+        <footer>
+            <p>Automator Hub Scripting Documentation</p>
+        </footer>
+    </div>
+</body>
+
+</html>
