@@ -9,15 +9,14 @@ Based on everything we've built, here is a complete, professional `README.md` fi
 
 **Your Personal Desktop Automation Platform**
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/your-username/your-repo?style=for-the-badge)](https://github.com/your-username/your-repo/releases/latest)
+[![GitHub release (latest by date)]([https://img.shields.io/github/v/release/your-username/your-repo?style=for-the-badge)](https://github.com/your-username/your-repo/releases/latest](https://github.com/malemsana/automator-hub/releases/latest))
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg?style=for-the-badge)](https://creativecommons.org/licenses/by-sa/4.0/)
 
 Automator Hub is a cross-platform desktop application built for developers, hobbyists, and power-users who need to automate tasks in the browser. It provides a simple UI to manage multiple, isolated browser profiles and a rich scripting environment, powered by Puppeteer, to build powerful, data-driven automation agents.
 
 ---
 
-![Automator Hub Screenshot](https://i.ibb.co/bdbcB1p/automator-hub-screenshot.png) 
-*(This is a placeholder screenshot - replace with a new one showing the Groups and Apps features!)*
+![Automator Hub Screenshot]([https://i.ibb.co/bdbcB1p/automator-hub-screenshot.png](https://i.ibb.co/xtkHPrLv/profiles.png)) 
 
 ## ✨ Key Features
 
@@ -36,7 +35,7 @@ Automator Hub is a cross-platform desktop application built for developers, hobb
 
 You can download the latest version of Automator Hub from our official releases page.
 
-**[➡️ Go to the Latest Release Page](https://github.com/your-username/your-repo/releases/latest)**
+**[➡️ Go to the Latest Release Page](https://github.com/malemsana/automator-hub/releases/latest)**
 
 *   **For Windows:** Download the `automator_hub_setup.exe` file and run the installer.
 *   **Portable:** Download the `.zip` file, extract it anywhere on your computer, and run the `Automator Hub.exe` executable.
@@ -91,8 +90,8 @@ Scripts have access to several global objects for powerful automation.
 
 This is an open-source project, and contributions are welcome!
 
-*   Found a bug? [Open an issue](https://github.com/your-username/your-repo/issues).
-*   Have a feature idea? [Start a discussion](https://github.com/your-username/your-repo/discussions).
+*   Found a bug? [Open an issue](https://github.com/malemsana/automator-hub/issues).
+*   Have a feature idea? [Start a discussion](https://github.com/malemsana/automator-hub/discussions).
 *   Want to contribute code? Fork the repository and submit a pull request.
 
 ## 📄 License
