@@ -1,9 +1,3 @@
-Of course. A great README is the front door to your entire project. It needs to be welcoming, informative, and clear.
-
-Based on everything we've built, here is a complete, professional `README.md` file. It's written in Markdown, so you can copy and paste it directly into the `README.md` file in your project's root directory.
-
----
-
 # Automator Hub
 ![Logo](https://i.ibb.co/4gCFYhm0/logo.png)
 
