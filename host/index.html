@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automator Hub - Desktop Automation Platform</title>
+    <style>
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-color: #1a1b26;
+            --surface-color: #24283b;
+            --primary-color: #7aa2f7;
+            --text-color: #c0caf5;
+            --text-secondary-color: #a9b1d6;
+            --border-color: #3b4261;
+            --status-green: #9ece6a;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* --- NEW LOGO STYLE --- */
+        .header-logo {
+            max-width: 150px;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        header .tagline {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            opacity: 0.9;
+        }
+
+        section {
+            padding: 60px 20px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-list li {
+            background-color: var(--surface-color);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .feature-list h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .release-card {
+            background-color: var(--surface-color);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .release-card h3 { margin-top: 0; }
+        .release-card .date { color: var(--text-secondary-color); font-style: italic; margin-bottom: 15px; }
+        .release-card a { color: var(--text-color); }
+        .release-card .download-links { margin-top: 20px; }
+
+
+        .api-docs code {
+            background-color: #161821;
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .api-docs pre {
+            background-color: #161821;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary-color);
+        }
+        footer a { color: var(--primary-color); }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <!-- LOGO ADDED HERE -->
+            <img src="https://i.ibb.co/4gCFYhm0/logo.png" alt="Automator Hub Logo" class="header-logo">
+            
+            <h1>Automator Hub</h1>
+            <p class="tagline">Your Personal Desktop Automation Platform</p>
+            <p>Create, manage, and run browser automation scripts in isolated profiles, with powerful APIs for data, files, and networking.</p>
+            <br>
+            <a href="#releases" class="cta-button">Download Latest Version</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="about">
+            <h2>What is Automator Hub?</h2>
+            <p style="text-align: center; max-width: 700px; margin: 0 auto 40px;">Automator Hub is a cross-platform desktop application built for developers, hobbyists, and power-users who need to automate tasks in the browser. It provides a simple UI to manage multiple, isolated browser profiles and a rich scripting environment to build powerful, data-driven automation agents.</p>
+            <ul class="feature-list">
+                <!-- Features unchanged -->
+                <li>
+                    <h3>Profile & Group Management</h3>
+                    <p>Create isolated browser profiles. Organize them into colored groups to manage complex workflows with bulk actions.</p>
+                </li>
+                <li>
+                    <h3>Built-in Script Editor</h3>
+                    <p>A powerful, built-in editor with syntax highlighting allows you to write and manage your Puppeteer-based scripts directly in the app.</p>
+                </li>
+                <li>
+                    <h3>Script-centric Database</h3>
+                    <p>Every script gets its own private SQLite database, perfect for aggregating scraped data from multiple profiles into one location.</p>
+                </li>
+                 <li>
+                    <h3>Secure Workspace (File I/O)</h3>
+                    <p>Scripts can read and write files to a sandboxed workspace folder. Downloads are automatically saved here for easy access.</p>
+                </li>
+                 <li>
+                    <h3>Backend Networking</h3>
+                    <p>Empower your scripts with the ability to make external API calls. Your automations can now interact with any web service on the internet.</p>
+                </li>
+                <li>
+                    <h3>Custom Apps & Dashboards</h3>
+                    <p>Scripts can create their own custom HTML dashboards, which appear in the "Apps" screen for data visualization and building custom control panels.</p>
+                </li>
+            </ul>
+        </section>
+
+        <section id="releases">
+            <h2>Releases</h2>
+            
+            <div class="release-card">
+                <h3>Version 0.1.4 - The Platform Update (Latest)</h3>
+                <p class="date">September 5, 2025</p>
+                <p>This monumental update transforms Automator Hub into a true automation platform with a suite of new APIs for scripts.</p>
+                <ul>
+                    <li>✨ **New Feature:** In-app "Apps" screen to display custom script-generated dashboards.</li>
+                    <li>🚀 **New Scripting APIs:** Scripts now have access to a private database (`db`), a secure file workspace (`automator.workspace`), and a backend networking API (`automator.api`).</li>
+                    <li>🐛 **Bug Fixes:** Hardened the script runner with robust error handling for both syntax and runtime errors, with full stack traces logged to Mission Control.</li>
+                </ul>
+                <div class="download-links">
+                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .exe Installer</a> | 
+                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .zip Package</a>
+                </div>
+            </div>
+
+            <div class="release-card">
+                <h3>Version 0.1.1 - The Jugaad Fix</h3>
+                <p class="date">[Date of Release]</p>
+                <p>This was a critical stability and feature-enhancement release that addressed major bugs and completed the profile management user experience.</p>
+                <ul>
+                    <li>✨ **New Feature:** Implemented full Profile Settings page to manage names and avatars.</li>
+                    <li>✨ **New Feature:** Added Profile Group management, allowing users to organize profiles into colored groups with bulk actions.</li>
+                    <li>🐛 **Fixed Critical Bug:** A complete overhaul of the "Launch Profile" feature using the "Jugaad" method to make it reliable.</li>
+                </ul>
+                <div class="download-links">
+                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.1.1/Automator.Hub.Dev.-win32-x64-0.1.1.zip">Download .exe Installer</a> | 
+                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.1.1/Automator.Hub.Dev.-win32-x64-0.1.1.zipDownload .zip Package</a>
+                </div>
+            </div>
+
+             <div class="release-card">
+                <h3>Version 0.1.0 - The Genesis Release</h3>
+                <p class="date">[Date of Release]</p>
+                <p>The very first public release of Automator Hub. This version established the core architecture and a complete, functional workflow for creating and running batch automation jobs.</p>
+                <ul>
+                    <li>✨ **Core Features:** Profile Creation, a CodeMirror-powered Script Editor, and the Job Orchestrator with real-time logging in Mission Control.</li>
+                    <li>⚠️ **Known Issue:** The "Launch Profile" button was non-functional in this release.</li>
+                </ul>
+                <div class="download-links">
+                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .exe Installer</a> | 
+                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .zip Package</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="docs" class="api-docs">
+            <!-- Documentation unchanged -->
+            <h2>Scripting API Documentation</h2>
+            <p>Every script runs in a Puppeteer environment and has access to the following global APIs.</p>
+            <h3>The `automator` Object</h3>
+            <h4>`automator.getProfileName()`</h4>
+            <p>Returns the name of the profile the script is currently running on.</p>
+            <pre><code>const currentProfile = automator.getProfileName();
+console.log(`Running on: ${currentProfile}`);</code></pre>
+            <h4>`automator.workspace` (File I/O)</h4>
+            <p>Provides access to a secure, private folder for your script.</p>
+            <ul>
+                <li><code>.getPath()</code>: Returns the absolute path to the workspace folder.</li>
+                <li><code>.writeFile(filename, content)</code>: Saves data to a file in the workspace.</li>
+                <li><code>.readFile(filename)</code>: Reads data from a file in the workspace.</li>
+            </ul>
+            <h4>`automator.api` (Networking)</h4>
+            <p>Allows scripts to make secure backend HTTP requests.</p>
+             <pre><code>const response = await automator.api.fetch('https://api.example.com/data');
+const jsonData = JSON.parse(response.body);</code></pre>
+            <h4>`automator.dashboard`</h4>
+            <p>Allows a script to create its own custom UI, which will appear in the "Apps" screen.</p>
+             <pre><code>const dashboardHtml = `&lt;h1&gt;My Report&lt;/h1&gt;`;
+await automator.dashboard.setHTML(dashboardHtml);</code></pre>
+            <h3>The `db` Object (Database)</h3>
+            <p>Gives your script access to its own private SQLite database to store and aggregate data.</p>
+            <h4>`db.execute(sql, [params])`</h4>
+            <pre><code>// Insert data safely
+await db.execute('INSERT INTO results (item) VALUES (?)', ['Scraped data']);
+const results = await db.execute('SELECT * FROM results');</code></pre>
+        </section>
+        
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Automator Hub is an open-source project. Check out the code, report issues, or contribute on GitHub.</p>
+            <p><a href="[YOUR GITHUB REPO LINK]">View Project on GitHub</a></p>
+            <p>&copy; 2025 Malemsana. Released under the Creative Commons license.</p>
+        </div>
+    </footer>
+</body>
+</html>
