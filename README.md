@@ -16,7 +16,7 @@ Automator Hub is a cross-platform desktop application built for developers, hobb
 
 ---
 
-![Automator Hub Screenshot]([https://i.ibb.co/bdbcB1p/automator-hub-screenshot.png](https://i.ibb.co/xtkHPrLv/profiles.png)) 
+![Automator Hub Screenshot][https://i.ibb.co/xtkHPrLv/profiles.png) 
 
 ## ✨ Key Features
 
