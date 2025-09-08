@@ -1,288 +1,957 @@
+<!-- index.html - Complete Final Version for v0.1.2 Groups Feature -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+        content="script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automator Hub - Desktop Automation Platform</title>
+    <title>Automator Hub</title>
+    <link rel="stylesheet" href="./node_modules/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="./node_modules/codemirror/theme/dracula.css">
     <style>
         :root {
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --bg-color: #1a1b26;
             --surface-color: #24283b;
+            --surface-hover-color: #3b4261;
             --primary-color: #7aa2f7;
             --text-color: #c0caf5;
             --text-secondary-color: #a9b1d6;
             --border-color: #3b4261;
+            --status-red: #f7768e;
             --status-green: #9ece6a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: var(--font-family);
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            line-height: 1.6;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
+        .view {
+            display: none;
         }
 
-        header {
-            text-align: center;
-            padding: 80px 20px;
-            border-bottom: 1px solid var(--border-color);
+        .view.active {
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- NEW LOGO STYLE --- */
-        .header-logo {
-            max-width: 150px;
+        .sidebar {
+            background-color: var(--surface-color);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-header {
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 30px;
         }
 
-        header h1 {
-            font-size: 3.5rem;
-            color: white;
-            margin-bottom: 10px;
+        .sidebar-header .icon {
+            width: 32px;
+            height: 32px;
+            stroke: var(--primary-color);
         }
 
-        header .tagline {
-            font-size: 1.4rem;
-            color: var(--primary-color);
-            margin-bottom: 30px;
+        .sidebar-header h1 {
+            font-size: 1.2rem;
         }
 
-        .cta-button {
-            display: inline-block;
+        .sidebar nav {
+            flex-grow: 1;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+        }
+
+        .sidebar nav a {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: all .2s ease;
+        }
+
+        .sidebar nav a:hover {
+            background-color: var(--surface-hover-color);
+            color: var(--text-color);
+        }
+
+        .sidebar nav .nav-link.active {
+            color: var(--text-color);
+            background-color: rgba(122, 162, 247, .1);
+            border-left-color: var(--primary-color);
+        }
+
+        .main-content {
+            padding: 24px 32px;
+            overflow-y: auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .main-header h2 {
+            font-size: 1.8rem;
+        }
+
+        .button {
             background-color: var(--primary-color);
             color: var(--bg-color);
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: transform 0.2s ease, opacity 0.2s ease;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s ease;
         }
 
-        .cta-button:hover {
-            transform: translateY(-3px);
-            opacity: 0.9;
+        .button.add-btn {
+            font-size: 24px;
+            font-weight: 700;
+            padding: 0 16px;
+            line-height: 36px;
         }
 
-        section {
-            padding: 60px 20px;
+        .button:hover {
+            opacity: .9;
         }
 
-        h2 {
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
+        .CodeMirror {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
         }
 
-        .feature-list {
+        #editor-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .context-menu {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            background-color: var(--surface-hover-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 5px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
+            font-size: 14px;
+        }
+
+        .context-menu ul {
             list-style: none;
-            padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
         }
 
-        .feature-list li {
+        .context-menu li {
+            padding: 8px 20px;
+            cursor: pointer;
+        }
+
+        .context-menu li:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        .context-menu li.separator {
+            height: 1px;
+            background-color: var(--border-color);
+            padding: 0;
+            margin: 5px 0;
+        }
+
+        #profiles-list-ul li {
+            background-color: var(--surface-color);
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+            background-color: var(--surface-hover-color);
+            flex-shrink: 0;
+        }
+
+        #profiles-list-ul li .profile-name {
+            flex-grow: 1;
+            cursor: default;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            transition: .4s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, .6);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
             background-color: var(--surface-color);
             padding: 25px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-        }
-        
-        .feature-list h3 {
-            color: var(--primary-color);
-            margin-top: 0;
+            width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .release-card {
-            background-color: var(--surface-color);
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border-left: 5px solid var(--primary-color);
+        .modal-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        
-        .release-card h3 { margin-top: 0; }
-        .release-card .date { color: var(--text-secondary-color); font-style: italic; margin-bottom: 15px; }
-        .release-card a { color: var(--text-color); }
-        .release-card .download-links { margin-top: 20px; }
 
+        .modal-field label {
+            font-weight: 600;
+            color: var(--text-secondary-color);
+        }
 
-        .api-docs code {
-            background-color: #161821;
-            padding: 0.2em 0.4em;
-            margin: 0;
-            font-size: 85%;
+        .modal-field input[type="text"],
+        .modal-field select,
+        .radio-group {
+            padding: 10px;
+            font-size: 1rem;
+            background-color: var(--surface-hover-color);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-family: 'Courier New', Courier, monospace;
+            color: var(--text-color);
         }
 
-        .api-docs pre {
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .modal-buttons .button {
+            margin-left: 10px;
+        }
+
+        .modal-buttons .button[id*="cancel"] {
+            background-color: #555;
+        }
+
+        #group-tabs-container {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .tabs {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .tab-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary-color);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .tab-item:hover {
+            background-color: var(--surface-color);
+            color: var(--text-color);
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-color);
+        }
+
+        .color-swatch[data-color="#808080"] {
+            background-color: #808080;
+        }
+
+        .color-swatch[data-color="#f7768e"] {
+            background-color: #f7768e;
+        }
+
+        .color-swatch[data-color="#e0af68"] {
+            background-color: #e0af68;
+        }
+
+        .color-swatch[data-color="#9ece6a"] {
+            background-color: #9ece6a;
+        }
+
+        .color-swatch[data-color="#7aa2f7"] {
+            background-color: #7aa2f7;
+        }
+
+        .color-swatch[data-color="#bb9af7"] {
+            background-color: #bb9af7;
+        }
+
+        #script-editor-view .main-header input {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            flex-grow: 1;
+            margin: 0 20px;
+            padding: 8px;
+        }
+
+        #profile-settings-view {
+            gap: 20px;
+        }
+
+        .pfp-container {
+            text-align: center;
+        }
+
+        .pfp-image {
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            border: 3px solid var(--border-color);
+            background-color: var(--surface-color);
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .pfp-container button {
+            margin-top: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            color: var(--text-secondary-color);
+        }
+
+        .input-group input {
+            padding: 10px;
+            font-size: 1.1rem;
+            background-color: var(--surface-hover-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+        }
+
+        .save-changes-bar {
+            margin-top: auto;
+            text-align: right;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        #job-monitor-wrapper {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #job-overview {
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 20px;
+        }
+
+        #job-overview strong {
+            color: var(--primary-color);
+        }
+
+        #job-log-console {
+            flex-grow: 1;
             background-color: #161821;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            padding: 15px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
         }
 
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
-            border-top: 1px solid var(--border-color);
+        .log-line {
+            white-space: pre-wrap;
+            margin-bottom: 5px;
+        }
+
+        .log-line.orchestrator {
             color: var(--text-secondary-color);
         }
-        footer a { color: var(--primary-color); }
+
+        .log-line.script {
+            color: var(--text-color);
+        }
+
+        .log-line.error {
+            color: var(--status-red);
+        }
+
+        .log-line.success {
+            color: var(--status-green);
+        }
+
+        .main-content.view {
+            display: none;
+        }
+
+        .main-content.view.active {
+            display: flex;
+        }
+
+        .tab-item {
+            display: flex;
+            /* Make the button a flex container */
+            align-items: center;
+            gap: 8px;
+            /* Add some space between the dot and the text */
+        }
+
+        .group-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-secondary-color);
+            /* Default to 'disabled' grey color */
+            transition: background-color 0.3s ease;
+        }
+
+        .group-status-dot.enabled {
+            background-color: var(--status-green);
+            /* Green when enabled */
+        }
+
+        .groups-checkbox-container {
+            background-color: var(--surface-hover-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .group-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Style for the primary group radio button */
+        .group-checkbox-item input[type="radio"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: var(--surface-color);
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 0.15em solid currentColor;
+            border-radius: 50%;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+        }
+
+        .group-checkbox-item input[type="radio"]::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em var(--primary-color);
+        }
+
+        .group-checkbox-item input[type="radio"]:checked::before {
+            transform: scale(1);
+        }
+
+        .groups-checkbox-container {
+            background-color: var(--surface-hover-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .group-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .group-checkbox-item .group-color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .group-checkbox-item input[type="radio"] {
+            /* Custom radio button styles */
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: var(--surface-color);
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 0.15em solid currentColor;
+            border-radius: 50%;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+        }
+
+        .group-checkbox-item input[type="radio"]::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em var(--primary-color);
+        }
+
+        .group-checkbox-item input[type="radio"]:checked::before {
+            transform: scale(1);
+        }
+
+        .members-checkbox-container {
+            background-color: var(--surface-hover-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+            /* Allow it to take up the remaining space */
+            overflow-y: auto;
+            /* Make it scrollable if there are many profiles */
+        }
+
+        /* This is for each profile row inside the list */
+        .member-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--surface-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        /* ... at the end of the <style> block ... */
+        /* --- Styles for Apps/Dashboard View (v0.1.4) --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .dashboard-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .dashboard-card-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
     </style>
 </head>
 
 <body>
-    <header>
-        <div class="container">
-            <!-- LOGO ADDED HERE -->
-            <img src="https://i.ibb.co/4gCFYhm0/logo.png" alt="Automator Hub Logo" class="header-logo">
-            
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.82m5.84-2.56a6 6 0 01-7.38 5.84m2.56-5.84a6 6 0 015.84 7.38m-5.84-2.56l-1.62-1.62a6 6 0 01-6-6l-1.62-1.62m12.42 2.56l-1.62-1.62a6 6 0 00-6-6l-1.62-1.62m12.42 2.56L17.25 12l2.33 2.33m-12.42-2.56L6.75 12l-2.33 2.33" />
+            </svg>
             <h1>Automator Hub</h1>
-            <p class="tagline">Your Personal Desktop Automation Platform</p>
-            <p>Create, manage, and run browser automation scripts in isolated profiles, with powerful APIs for data, files, and networking.</p>
-            <br>
-            <a href="#releases" class="cta-button">Download Latest Version</a>
         </div>
-    </header>
-
-    <main class="container">
-        <section id="about">
-            <h2>What is Automator Hub?</h2>
-            <p style="text-align: center; max-width: 700px; margin: 0 auto 40px;">Automator Hub is a cross-platform desktop application built for developers, hobbyists, and power-users who need to automate tasks in the browser. It provides a simple UI to manage multiple, isolated browser profiles and a rich scripting environment to build powerful, data-driven automation agents.</p>
-            <ul class="feature-list">
-                <!-- Features unchanged -->
-                <li>
-                    <h3>Profile & Group Management</h3>
-                    <p>Create isolated browser profiles. Organize them into colored groups to manage complex workflows with bulk actions.</p>
-                </li>
-                <li>
-                    <h3>Built-in Script Editor</h3>
-                    <p>A powerful, built-in editor with syntax highlighting allows you to write and manage your Puppeteer-based scripts directly in the app.</p>
-                </li>
-                <li>
-                    <h3>Script-centric Database</h3>
-                    <p>Every script gets its own private SQLite database, perfect for aggregating scraped data from multiple profiles into one location.</p>
-                </li>
-                 <li>
-                    <h3>Secure Workspace (File I/O)</h3>
-                    <p>Scripts can read and write files to a sandboxed workspace folder. Downloads are automatically saved here for easy access.</p>
-                </li>
-                 <li>
-                    <h3>Backend Networking</h3>
-                    <p>Empower your scripts with the ability to make external API calls. Your automations can now interact with any web service on the internet.</p>
-                </li>
-                <li>
-                    <h3>Custom Apps & Dashboards</h3>
-                    <p>Scripts can create their own custom HTML dashboards, which appear in the "Apps" screen for data visualization and building custom control panels.</p>
-                </li>
-            </ul>
-        </section>
-
-        <section id="releases">
-            <h2>Releases</h2>
-            
-            <div class="release-card">
-                <h3>Version 0.1.4 - The Platform Update (Latest)</h3>
-                <p class="date">September 5, 2025</p>
-                <p>This monumental update transforms Automator Hub into a true automation platform with a suite of new APIs for scripts.</p>
-                <ul>
-                    <li>✨ **New Feature:** In-app "Apps" screen to display custom script-generated dashboards.</li>
-                    <li>🚀 **New Scripting APIs:** Scripts now have access to a private database (`db`), a secure file workspace (`automator.workspace`), and a backend networking API (`automator.api`).</li>
-                    <li>🐛 **Bug Fixes:** Hardened the script runner with robust error handling for both syntax and runtime errors, with full stack traces logged to Mission Control.</li>
-                </ul>
-                <div class="download-links">
-                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .exe Installer</a> | 
-                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .zip Package</a>
-                </div>
-            </div>
-
-            <div class="release-card">
-                <h3>Version 0.1.1 - The Jugaad Fix</h3>
-                <p class="date">[Date of Release]</p>
-                <p>This was a critical stability and feature-enhancement release that addressed major bugs and completed the profile management user experience.</p>
-                <ul>
-                    <li>✨ **New Feature:** Implemented full Profile Settings page to manage names and avatars.</li>
-                    <li>✨ **New Feature:** Added Profile Group management, allowing users to organize profiles into colored groups with bulk actions.</li>
-                    <li>🐛 **Fixed Critical Bug:** A complete overhaul of the "Launch Profile" feature using the "Jugaad" method to make it reliable.</li>
-                </ul>
-                <div class="download-links">
-                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.1.1/Automator.Hub.Dev.-win32-x64-0.1.1.zip">Download .exe Installer</a> | 
-                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.1.1/Automator.Hub.Dev.-win32-x64-0.1.1.zipDownload .zip Package</a>
-                </div>
-            </div>
-
-             <div class="release-card">
-                <h3>Version 0.1.0 - The Genesis Release</h3>
-                <p class="date">[Date of Release]</p>
-                <p>The very first public release of Automator Hub. This version established the core architecture and a complete, functional workflow for creating and running batch automation jobs.</p>
-                <ul>
-                    <li>✨ **Core Features:** Profile Creation, a CodeMirror-powered Script Editor, and the Job Orchestrator with real-time logging in Mission Control.</li>
-                    <li>⚠️ **Known Issue:** The "Launch Profile" button was non-functional in this release.</li>
-                </ul>
-                <div class="download-links">
-                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .exe Installer</a> | 
-                    <a href="https://github.com/malemsana/automator-hub/releases/download/0.2.0/Automator.Hub.0.1.2-win32-x64-0.1.2.zip">Download .zip Package</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="docs" class="api-docs">
-            <!-- Documentation unchanged -->
-            <h2>Scripting API Documentation</h2>
-            <p>Every script runs in a Puppeteer environment and has access to the following global APIs.</p>
-            <h3>The `automator` Object</h3>
-            <h4>`automator.getProfileName()`</h4>
-            <p>Returns the name of the profile the script is currently running on.</p>
-            <pre><code>const currentProfile = automator.getProfileName();
-console.log(`Running on: ${currentProfile}`);</code></pre>
-            <h4>`automator.workspace` (File I/O)</h4>
-            <p>Provides access to a secure, private folder for your script.</p>
+        <nav>
             <ul>
-                <li><code>.getPath()</code>: Returns the absolute path to the workspace folder.</li>
-                <li><code>.writeFile(filename, content)</code>: Saves data to a file in the workspace.</li>
-                <li><code>.readFile(filename)</code>: Reads data from a file in the workspace.</li>
+                <li><a class="nav-link active" data-view="mission-control-view">Mission Control</a></li>
+                <li><a class="nav-link" data-view="profiles-view">Profiles</a></li>
+                <li><a class="nav-link" data-view="scripts-list-view">Scripts</a></li>
+                <li><a class="nav-link" data-view="apps-view">Apps</a></li>
             </ul>
-            <h4>`automator.api` (Networking)</h4>
-            <p>Allows scripts to make secure backend HTTP requests.</p>
-             <pre><code>const response = await automator.api.fetch('https://api.example.com/data');
-const jsonData = JSON.parse(response.body);</code></pre>
-            <h4>`automator.dashboard`</h4>
-            <p>Allows a script to create its own custom UI, which will appear in the "Apps" screen.</p>
-             <pre><code>const dashboardHtml = `&lt;h1&gt;My Report&lt;/h1&gt;`;
-await automator.dashboard.setHTML(dashboardHtml);</code></pre>
-            <h3>The `db` Object (Database)</h3>
-            <p>Gives your script access to its own private SQLite database to store and aggregate data.</p>
-            <h4>`db.execute(sql, [params])`</h4>
-            <pre><code>// Insert data safely
-await db.execute('INSERT INTO results (item) VALUES (?)', ['Scraped data']);
-const results = await db.execute('SELECT * FROM results');</code></pre>
-        </section>
-        
+        </nav>
+    </aside>
+
+    <main id="mission-control-view" class="main-content view active">
+        <header class="main-header">
+            <h2>Mission Control</h2>
+            <button id="show-job-modal-btn" class="button">🚀 Run New Job</button>
+        </header>
+        <div id="job-idle-state">
+            <p>Launch and monitor your automation jobs here.</p>
+        </div>
+        <div id="job-monitor-wrapper">
+            <div id="job-overview">
+                <div>Script: <strong id="job-overview-script-name">N/A</strong></div>
+                <div>Status: <strong id="job-overview-status">Waiting...</strong></div>
+                <div>Profiles: <strong id="job-overview-progress">0 / 0</strong></div>
+                <div>Elapsed Time: <strong id="job-overview-elapsed-time">0s</strong></div>
+                <button id="stop-job-btn" class="button"
+                    style="grid-column: 2 / 3; grid-row: 1 / 3; background-color: var(--status-red);">STOP JOB</button>
+            </div>
+            <div id="job-log-console"></div>
+        </div>
     </main>
 
-    <footer>
-        <div class="container">
-            <p>Automator Hub is an open-source project. Check out the code, report issues, or contribute on GitHub.</p>
-            <p><a href="[YOUR GITHUB REPO LINK]">View Project on GitHub</a></p>
-            <p>&copy; 2025 Malemsana. Released under the Creative Commons license.</p>
+    <main id="profiles-view" class="main-content view">
+        <header class="main-header">
+            <h2>Profiles</h2><button id="add-new-profile-btn" class="button add-btn">+</button>
+        </header>
+
+        <div id="group-tabs-container">
+            <div id="group-tabs" class="tabs">
+                <button class="tab-item active" data-group-id="all">All Profiles</button>
+            </div>
+            <button id="add-new-group-btn" class="button" style="margin-left: 20px;">+ New Group</button>
         </div>
-    </footer>
+
+        <ul id="profiles-list-ul"></ul>
+        <div id="profiles-list-empty" style="display:none; text-align:center; margin-top:50px;">
+            <h3>No profiles yet.</h3>
+            <p>Click "+" to create your first one.</p>
+        </div>
+    </main>
+
+    <main id="scripts-list-view" class="main-content view">
+        <header class="main-header">
+            <h2>Scripts</h2><button id="add-new-script-btn" class="button add-btn">+</button>
+        </header>
+        <ul id="scripts-list-ul"></ul>
+        <div id="scripts-list-empty" style="display:none; text-align:center; margin-top:50px;">
+            <h3>No scripts yet.</h3>
+            <p>Click "+" to create your first one.</p>
+        </div>
+    </main>
+
+    <main id="script-editor-view" class="main-content view">
+        <header class="main-header">
+            <button id="back-to-list-btn" class="button">&larr; Back to List</button>
+            <input type="text" id="script-name-input-editor" placeholder="Script Name">
+            <button id="save-script-btn" class="button">Save</button>
+        </header>
+        <div id="editor-container"><textarea id="code-editor"></textarea></div>
+    </main>
+
+    <main id="profile-settings-view" class="main-content view">
+        <header class="main-header">
+            <button id="back-to-profiles-btn" class="button">&larr; Back to Profiles</button>
+            <h2 id="profile-settings-title">Edit Profile</h2>
+        </header>
+        <div class="pfp-container">
+            <img id="pfp-preview" src="" alt="Profile Picture" class="pfp-image">
+            <button id="change-pfp-btn" class="button">Change Picture</button>
+        </div>
+        <div class="input-group">
+            <label for="profile-name-input-settings">Profile Name</label>
+            <input type="text" id="profile-name-input-settings" placeholder="Enter profile name">
+        </div>
+
+        <div class="input-group">
+            <label>Group Memberships (Select Primary Color)</label>
+            <div id="profile-groups-list" class="groups-checkbox-container">
+                <!-- Checkboxes will be dynamically added here -->
+                <p>Loading groups...</p>
+            </div>
+        </div>
+        <div class="save-changes-bar">
+            <button id="save-profile-settings-btn" class="button">Save Changes</button>
+        </div>
+    </main>
+
+    <main id="group-settings-view" class="main-content view">
+        <header class="main-header">
+            <button id="back-to-profiles-from-group-settings-btn" class="button">&larr; Back to Profiles</button>
+            <h2 id="group-settings-title">Group Settings</h2>
+        </header>
+
+        <p style="color: var(--text-secondary-color); margin-bottom: 20px;">
+            Select the profiles that should be members of this group.
+        </p>
+
+        <div id="group-members-list" class="members-checkbox-container">
+            <!-- All profiles will be dynamically loaded here by JavaScript -->
+            <p>Loading profiles...</p>
+        </div>
+
+        <div class="save-changes-bar">
+            <button id="save-group-settings-btn" class="button">Save Changes</button>
+        </div>
+    </main>
+
+    <main id="apps-view" class="main-content view">
+        <header class="main-header">
+            <h2>Apps & Dashboards</h2>
+        </header>
+
+        <p style="color: var(--text-secondary-color); margin-bottom: 20px;">
+            Scripts that create a custom UI using the `automator.dashboard` API will automatically appear here.
+
+        </p>
+
+        <div id="dashboard-grid" class="dashboard-grid">
+            <!-- Dashboard cards will be dynamically inserted here -->
+        </div>
+
+        <div id="dashboard-empty-state" style="display: none; text-align: center; margin-top: 50px;">
+            <h3>No Dashboards Found</h3>
+            <p>Run a script that uses the `automator.dashboard.setHTML()` API to create one.</p>
+        </div>
+    </main>
+
+    <main id="dashboard-viewer-view" class="main-content view">
+        <header class="main-header">
+             <button id="back-to-apps-btn" class="button">&larr; Back to Apps</button>
+             <h2 id="dashboard-viewer-title">Dashboard</h2>
+        </header>
+        
+        <!-- The webview tag is where the script's HTML will be securely rendered -->
+        <webview id="dashboard-webview" style="flex-grow: 1; border-radius: 6px; border: 1px solid var(--border-color);"></webview>
+    </main>
+
+    <!-- CONTEXT MENUS -->
+    <div id="profile-context-menu" class="context-menu">
+        <ul>
+            <li id="menu-launch-profile" style="font-weight: bold; color: var(--primary-color);">🚀 Launch</li>
+            <li class="separator"></li>
+            <li id="menu-rename-profile">Rename</li>
+            <li id="menu-settings-profile">Settings</li>
+            <li class="separator"></li>
+            <li id="menu-delete-profile" style="color:var(--status-red);">Delete</li>
+        </ul>
+    </div>
+    <div id="script-context-menu" class="context-menu">
+        <ul>
+            <li id="menu-edit-script">Edit</li>
+            <li id="menu-rename-script">Rename</li>
+            <li class="separator"></li>
+            <li id="menu-delete-script" style="color:var(--status-red);">Delete</li>
+        </ul>
+    </div>
+    <div id="group-context-menu" class="context-menu">
+        <ul>
+            <li id="menu-edit-group">✏️ Edit Name & Color</li>
+            <li id="menu-group-settings">⚙️ Settings (Manage Profiles)</li>
+            <li class="separator"></li>
+            <li id="menu-enable-group" style="color: var(--status-green);">✅ Enable</li>
+            <li id="menu-disable-group">⚪ Disable</li>
+            <li class="separator"></li>
+            <li id="menu-delete-group" style="color:var(--status-red);">🗑️ Delete Group</li>
+        </ul>
+    </div>
+
+    <!-- MODALS -->
+    <div id="job-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="text-align: center;">Launch New Automation Job</h3>
+            <div class="modal-field"><label for="script-select">1. Choose Script:</label><select
+                    id="script-select"></select></div>
+            <div class="modal-field"><label>2. Run Mode:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="runMode" value="headed" checked> Headed</label>
+                    <label><input type="radio" name="runMode" value="headless"> Headless</label>
+                </div>
+            </div>
+            <p style="text-align: center; color: var(--text-secondary-color); margin-top: 10px;">This will run on all
+                <strong>Enabled</strong> profiles.
+            </p>
+            <div class="modal-buttons"><button id="job-modal-cancel-btn" class="button">Cancel</button><button
+                    id="launch-job-btn" class="button">🚀 Launch Job</button></div>
+        </div>
+    </div>
+    <div id="new-group-modal-overlay" class="modal-overlay">
+        <div id="new-group-modal-content" class="modal-content">
+            <h3 id="group-modal-title" style="text-align: center;">Create New Profile Group</h3>
+            <div class="modal-field">
+                <label for="new-group-name-input">Group Name:</label>
+                <input type="text" id="new-group-name-input" placeholder="e.g., Social Media Accounts">
+            </div>
+            <div class="modal-field">
+                <label>Group Color:</label>
+                <div id="group-color-picker" class="color-picker">
+                    <span class="color-swatch" data-color="#808080" title="Grey"></span>
+                    <span class="color-swatch" data-color="#f7768e" title="Red"></span>
+                    <span class="color-swatch" data-color="#e0af68" title="Orange"></span>
+                    <span class="color-swatch" data-color="#9ece6a" title="Green"></span>
+                    <span class="color-swatch" data-color="#7aa2f7" title="Blue"></span>
+                    <span class="color-swatch" data-color="#bb9af7" title="Purple"></span>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="new-group-modal-cancel-btn" class="button">Cancel</button>
+                <button id="new-group-modal-save-btn" class="button">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./node_modules/codemirror/lib/codemirror.js"></script>
+    <script src="./node_modules/codemirror/mode/javascript/javascript.js"></script>
+    <script src="./renderer.js"></script>
 </body>
+
 </html>
